@@ -1,5 +1,6 @@
 /* global L, Promise, Intl, Sentry, parseFloat */
 import SaveParser_FicsIt                        from './SaveParser/FicsIt.js';
+import HardDrives                               from './HardDrives.js';
 
 import BaseLayout_ContextMenu                   from './BaseLayout/ContextMenu.js';
 import BaseLayout_History                       from './BaseLayout/History.js';
@@ -37,6 +38,7 @@ import Modal_Map_Hotbars                        from './Modal/Map/Hotbars.js';
 import Modal_Map_Players                        from './Modal/Map/Players.js';
 import Modal_Map_Todo                           from './Modal/Map/Todo.js';
 import Modal_Map_Options                        from './Modal/Map/Options.js';
+import Modal_Map_MegaFactory                    from './Modal/Map/MegaFactory.js';
 
 import Modal_Statistics_Game                    from './Modal/Statistics/Game.js';
 import Modal_Statistics_Production              from './Modal/Statistics/Production.js';
@@ -260,21 +262,23 @@ export default class BaseLayout
         $('#modalCentralStorage').off('click').hide();
         $('#modalPowerCircuits').off('click');
 
-        for(let pathName in this.satisfactoryMap.collectableMarkers)
+        if(this.satisfactoryMap && this.satisfactoryMap.collectableMarkers)
         {
-            if(['sporeFlowers', 'smallRocks', 'largeRocks'].includes(this.satisfactoryMap.collectableMarkers[pathName].options.layerId))
+            for(let pathName in this.satisfactoryMap.collectableMarkers)
             {
-                if(this.satisfactoryMap.availableLayers[this.satisfactoryMap.collectableMarkers[pathName].options.layerId].hasLayer(this.satisfactoryMap.collectableMarkers[pathName]) === false)
+                if(['sporeFlowers', 'smallRocks', 'largeRocks'].includes(this.satisfactoryMap.collectableMarkers[pathName].options.layerId))
                 {
-                    this.satisfactoryMap.collectableMarkers[pathName].addTo(
-                        this.satisfactoryMap.availableLayers[this.satisfactoryMap.collectableMarkers[pathName].options.layerId]
-                    );
+                    if(this.satisfactoryMap.availableLayers[this.satisfactoryMap.collectableMarkers[pathName].options.layerId].hasLayer(this.satisfactoryMap.collectableMarkers[pathName]) === false)
+                    {
+                        this.satisfactoryMap.collectableMarkers[pathName].addTo(
+                            this.satisfactoryMap.availableLayers[this.satisfactoryMap.collectableMarkers[pathName].options.layerId]
+                        );
+                    }
                 }
-            }
-            else
-            {
-                if(this.satisfactoryMap.collectableMarkers[pathName] instanceof L.Circle === false)
+                else
                 {
+                    if(this.satisfactoryMap.collectableMarkers[pathName] instanceof L.Circle === false)
+                    {
                     this.satisfactoryMap.collectableMarkers[pathName].setOpacity(1);
                 }
 
@@ -298,6 +302,7 @@ export default class BaseLayout
             }
 
             delete this.satisfactoryMap.collectableMarkers[pathName].options.extractorPathName;
+            }
         }
         $('.updateLayerState[data-collected]').each((i, el) => {
             let total = $(el).attr('data-total');
@@ -315,7 +320,10 @@ export default class BaseLayout
             {
                 this.playerLayers[layerId].layerGroup.removeLayer(this.playerLayers[layerId].subLayer);
                 this.playerLayers[layerId].subLayer = null;
-                this.satisfactoryMap.leafletMap.removeLayer(this.playerLayers[layerId].layerGroup);
+                if(this.satisfactoryMap && this.satisfactoryMap.leafletMap)
+                {
+                    this.satisfactoryMap.leafletMap.removeLayer(this.playerLayers[layerId].layerGroup);
+                }
             }
             if(this.playerLayers[layerId].filters !== undefined)
             {
@@ -326,13 +334,14 @@ export default class BaseLayout
             }
         }
 
-        this.satisfactoryMap.leafletMap.removeControl(this.altitudeSliderControl);
+        if(this.satisfactoryMap && this.satisfactoryMap.leafletMap)
+        {
+            this.satisfactoryMap.leafletMap.removeControl(this.altitudeSliderControl);
+            this.satisfactoryMap.leafletMap.removeControl(this.selectionControl);
+            this.satisfactoryMap.leafletMap.removeControl(this.clipboardControl);
+        }
         this.altitudeSliderControl  = null;
-
-        this.satisfactoryMap.leafletMap.removeControl(this.selectionControl);
         this.selectionControl       = null;
-
-        this.satisfactoryMap.leafletMap.removeControl(this.clipboardControl);
         this.clipboardControl       = null;
 
         if(this.history !== null)
@@ -847,7 +856,7 @@ export default class BaseLayout
                         )
                         {
                             let targetPlayer = this.saveGameParser.getTargetObject(mOwnedPawn.pathName);
-                                if(targetPlayer !== null)
+                                if(targetPlayer !== null && this.satisfactoryMap && this.satisfactoryMap.leafletMap)
                                 {
                                     this.satisfactoryMap.leafletMap.setView(this.satisfactoryMap.unproject(targetPlayer.transform.translation), 7);
                                 }
@@ -1420,6 +1429,10 @@ export default class BaseLayout
                         case '#statisticsModalRules':
                             let mapRules        = new Modal_Map_GameRules({baseLayout: this});
                                 mapRules.parse();
+                            break;
+                        case '#statisticsModalMegaFactory':
+                            let mapMegaFactory  = new Modal_Map_MegaFactory({baseLayout: this});
+                                mapMegaFactory.parse();
                             break;
                     }
             });

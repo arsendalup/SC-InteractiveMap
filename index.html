@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satisfactory Interactive Map - Mega Factory</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        #leafletMap {
+            height: 80vh;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+        }
+        
+        .navbar {
+            background-color: #343a40 !important;
+            border-bottom: 2px solid #FFA500;
+        }
+        
+        .navbar-brand {
+            color: #FFA500 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #FFA500;
+            border-color: #FFA500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e6940a;
+            border-color: #e6940a;
+        }
+        
+        .card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+        }
+        
+        .card-header {
+            background-color: #343a40;
+            border-bottom: 1px solid #444;
+        }
+        
+        .coordinates-display {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            z-index: 1000;
+        }
+        
+        .mega-factory-zone-label {
+            color: white !important;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .mega-factory-legend {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .mega-factory-legend h4 {
+            margin-bottom: 10px;
+            color: #FFA500;
+        }
+        
+        #modalContainer .modal-content {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+        }
+        
+        #modalContainer .modal-header {
+            background-color: #343a40;
+            border-bottom: 1px solid #444;
+        }
+        
+        .btn-outline-warning {
+            color: #FFA500;
+            border-color: #FFA500;
+        }
+        
+        .btn-outline-warning:hover {
+            background-color: #FFA500;
+            border-color: #FFA500;
+            color: #000;
+        }
+        
+        .focus {
+            box-shadow: 0 0 10px #FFA500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                🏭 Satisfactory Interactive Map - Mega Factory
+            </a>
+            
+            <div class="navbar-nav ml-auto">
+                <button class="btn btn-primary mr-2" id="buildingsButton" style="display: none;">Buildings</button>
+                <button class="btn btn-primary mr-2" id="trainsButton" style="display: none;">Trains</button>
+                <button class="btn btn-primary mr-2" id="statisticsButton" data-toggle="modal" data-target="#statisticsModal" style="display: none;">Statistics</button>
+                <button class="btn btn-primary mr-2" id="researchButton" style="display: none;">Research</button>
+                <button class="btn btn-primary" id="optionsButton" data-toggle="modal" data-target="#optionsModal" style="display: none;">Options</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Map Container -->
+                <div id="leafletMap"></div>
+                
+                <!-- Coordinates Display -->
+                <div class="coordinates-display">
+                    <div>Coordinates: <span class="mouseMoveCoordinates">0 / 0</span></div>
+                    <div>Biome: <span class="mouseMoveBiome">-</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🚀 Mega Factory - Endgame Base Visualization</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p><strong>Quick Start:</strong></p>
+                                <ol>
+                                    <li>Click <strong>"Launch Mega Factory"</strong> at startup for instant visualization</li>
+                                    <li>Explore the 5 specialized zones on the interactive map</li>
+                                    <li>View detailed statistics and production requirements</li>
+                                    <li>Export the design configuration for implementation in-game</li>
+                                    <li>Optionally load your own save file to overlay the design</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="alert alert-success">
+                                    <h6>✨ No Save File Required!</h6>
+                                    <p class="mb-0">
+                                        <small>Generate the optimized base design instantly without any setup</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h6>🏭 Production Zones:</h6>
+                                <ul>
+                                    <li><span style="color: #4CAF50;">■</span> Northwest - Concrete & Basic Materials</li>
+                                    <li><span style="color: #FF9800;">■</span> Northeast - Steel & Power</li>
+                                    <li><span style="color: #2196F3;">■</span> Central - Advanced Assembly</li>
+                                    <li><span style="color: #9C27B0;">■</span> Southwest - Oil & Petrochemicals</li>
+                                    <li><span style="color: #F44336;">■</span> Southeast - Nuclear & Endgame</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>📊 Endgame Production:</h6>
+                                <ul>
+                                    <li>Assembly Director System: 4,000 units</li>
+                                    <li>Magnetic Field Generator: 4,000 units</li>
+                                    <li>Nuclear Pasta: 1,000 units</li>
+                                    <li>Thermal Propulsion Rocket: 1,000 units</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start Options -->
+    <div id="quickStart" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; max-width: 600px;">
+            <h2 style="color: #FFA500; margin-bottom: 30px;">🏭 Mega Factory Visualizer</h2>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 10px; margin-bottom: 30px;">
+                <h4>🚀 Direct Launch (Recommended)</h4>
+                <p>Generate the optimized endgame base immediately without any save file</p>
+                <button id="launchMegaFactory" class="btn btn-warning btn-lg" style="margin: 10px; min-width: 200px;">
+                    Launch Mega Factory
+                </button>
+            </div>
+
+            <div style="margin: 20px 0; font-size: 18px; color: #aaa;">- OR -</div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h5>📁 Load Your Save File</h5>
+                <p style="font-size: 14px; color: #ccc;">Load your existing Satisfactory save to overlay the mega factory design</p>
+                <button id="loadSaveFile" class="btn btn-secondary" style="margin: 10px;">Choose Save File</button>
+                <input type="file" id="saveGameFileInput" accept=".sav" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white;">
+            <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <h6 style="margin-top: 20px;">Loading Satisfactory Save...</h6>
+            <div class="tips" style="margin-top: 20px;">
+                <div class="speech-bubble">
+                    <em>Tip: You can right click on buildings to edit them!</em>
+                </div>
+            </div>
+            <div id="loaderProgressBar" style="width: 300px; margin: 20px auto; display: none;">
+                <div class="progress">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+    
+    <!-- Statistics Modal -->
+    <div class="modal fade" id="statisticsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Statistics & Planning</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="statisticsTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="statisticsModalProduction-tab" data-toggle="tab" href="#statisticsModalProduction" role="tab">Production</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="statisticsModalStorage-tab" data-toggle="tab" href="#statisticsModalStorage" role="tab">Storage</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="statisticsModalMegaFactory-tab" data-toggle="tab" href="#statisticsModalMegaFactory" role="tab">🏭 Mega Factory</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="statisticsModalOptions-tab" data-toggle="tab" href="#statisticsModalOptions" role="tab">Options</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="statisticsModalProduction" role="tabpanel">
+                            <p>Load a save file to see production statistics.</p>
+                        </div>
+                        <div class="tab-pane fade" id="statisticsModalStorage" role="tabpanel">
+                            <p>Load a save file to see storage statistics.</p>
+                        </div>
+                        <div class="tab-pane fade" id="statisticsModalMegaFactory" role="tabpanel">
+                            <p>Load a save file to access Mega Factory visualization.</p>
+                        </div>
+                        <div class="tab-pane fade" id="statisticsModalOptions" role="tabpanel">
+                            <p>Load a save file to access options.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Modal -->
+    <div class="modal fade" id="optionsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Map Options</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Load a save file to access map options.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Button -->
+    <button id="downloadSaveGameModalButton" class="btn btn-success" style="position: fixed; bottom: 20px; right: 20px; display: none;">
+        💾 Download Modified Save
+    </button>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js"></script>
+    
+    <!-- Application -->
+    <script type="module">
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up quick start
+            const quickStart = document.getElementById('quickStart');
+            const fileInput = document.getElementById('saveGameFileInput');
+            
+            // Show quick start initially
+            quickStart.style.display = 'block';
+            
+            // Handle direct mega factory launch
+            document.getElementById('launchMegaFactory').addEventListener('click', async () => {
+                quickStart.style.display = 'none';
+                document.querySelector('.loader').style.display = 'block';
+                document.querySelector('.loader h6').textContent = 'Generating Mega Factory...';
+                
+                try {
+                    // Import and initialize standalone mega factory
+                    const { default: MegaFactoryStandalone } = await import('./src/MegaFactory/MegaFactoryStandalone.js');
+                    
+                    const megaFactory = new MegaFactoryStandalone();
+                    await megaFactory.initialize();
+                    
+                    // Make it globally available for export function
+                    window.megaFactory = megaFactory;
+                    
+                    document.querySelector('.loader').style.display = 'none';
+                    
+                    // Show success message
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #4CAF50;
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 5px;
+                        z-index: 10000;
+                        max-width: 300px;
+                    `;
+                    notification.innerHTML = '🎉 Mega Factory generated successfully!<br>Explore the zones on the map.';
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error('Error launching Mega Factory:', error);
+                    alert('Error launching Mega Factory. Please try refreshing the page.');
+                    document.querySelector('.loader').style.display = 'none';
+                    quickStart.style.display = 'block';
+                }
+            });
+            
+            // Handle save file loading
+            document.getElementById('loadSaveFile').addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.name.endsWith('.sav')) {
+                    loadSaveFile(file);
+                } else {
+                    alert('Please select a valid Satisfactory save file (.sav)');
+                }
+            });
+            
+            function loadSaveFile(file) {
+                quickStart.style.display = 'none';
+                document.querySelector('.loader').style.display = 'block';
+                document.querySelector('.loader h6').textContent = 'Loading Satisfactory Save...';
+                
+                // Load the SCIM application
+                import('./build/SCIM.js').then(() => {
+                    // Initialize SCIM with the dropped file
+                    window.SCIM.processSaveGameFile(file);
+                }).catch(error => {
+                    console.error('Error loading SCIM:', error);
+                    alert('Error loading the interactive map. Please try refreshing the page.');
+                    document.querySelector('.loader').style.display = 'none';
+                    quickStart.style.display = 'block';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

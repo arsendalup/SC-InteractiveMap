@@ -2,6 +2,7 @@
 import BaseLayout_Modal                         from './BaseLayout/Modal.js';
 
 import Lib_MapMarker                            from './Lib/L.MapMarker.js';
+import HardDrives                               from './HardDrives.js';
 
 export default class GameMap
 {

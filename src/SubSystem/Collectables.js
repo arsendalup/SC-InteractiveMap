@@ -37,7 +37,7 @@ export default class SubSystem_Collectables
                                         {
                                             this.collectables[className].used++;
                                         }
-                                        if(this.baseLayout.satisfactoryMap.collectableMarkers[this.collectables[className].markers[m].pathName] !== undefined)
+                                        if(this.baseLayout.satisfactoryMap && this.baseLayout.satisfactoryMap.collectableMarkers && this.baseLayout.satisfactoryMap.collectableMarkers[this.collectables[className].markers[m].pathName] !== undefined)
                                         {
                                             if(className === '/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C')
                                             {
