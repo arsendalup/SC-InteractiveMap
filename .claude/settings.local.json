@@ -10,7 +10,8 @@
       "Bash(pkill:*)",
       "Bash(true)",
       "Bash(node:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

@@ -256,6 +256,8 @@ export default class BaseLayout
         $('#researchModal').off('show.bs.modal');
         $('#optionsModal').off('show.bs.modal');
         $('#buildingsModal').off('show.bs.modal');
+        $('#megaFactoryModal').off('show.bs.modal');
+        $('#megaFactoryButton').off('click');
         $('#colorSlotsModal').off('click');
         $('#lightSlotsModal').off('click');
         $('#modalPowerCircuitsBreakPriority').off('click').hide();
@@ -381,6 +383,7 @@ export default class BaseLayout
         $('#buildingsButton').hide();
         $('#trainsButton').hide();
         $('#statisticsButton').hide();
+        $('#megaFactoryButton').hide();
         $('#researchButton').hide();
         $('#optionsButton').hide();
         $('#altitudeSliderInputs').hide();
@@ -1453,9 +1456,21 @@ export default class BaseLayout
                     modalTrains.parse();
             });
 
+            // Mega Factory modal
+            $('#megaFactoryModal').on('show.bs.modal', () => {
+                let mapMegaFactory = new Modal_Map_MegaFactory({baseLayout: this});
+                $('#megaFactoryModalContent').html(mapMegaFactory.parse());
+            });
+
+            // Mega Factory button click handler
+            $('#megaFactoryButton').on('click', () => {
+                $('#megaFactoryModal').modal('show');
+            });
+
             $('#buildingsButton').show();
             $('#trainsButton').show();
             $('#statisticsButton').show();
+            $('#megaFactoryButton').show();
             $('#researchButton').show();
             $('#optionsButton').show();
 

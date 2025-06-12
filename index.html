@@ -121,6 +121,7 @@
                 <button class="btn btn-primary mr-2" id="buildingsButton" style="display: none;">Buildings</button>
                 <button class="btn btn-primary mr-2" id="trainsButton" style="display: none;">Trains</button>
                 <button class="btn btn-primary mr-2" id="statisticsButton" data-toggle="modal" data-target="#statisticsModal" style="display: none;">Statistics</button>
+                <button class="btn btn-warning mr-2" id="megaFactoryButton" style="display: none;">🏭 Mega Factory</button>
                 <button class="btn btn-primary mr-2" id="researchButton" style="display: none;">Research</button>
                 <button class="btn btn-primary" id="optionsButton" data-toggle="modal" data-target="#optionsModal" style="display: none;">Options</button>
             </div>
@@ -285,6 +286,23 @@
                             <p>Load a save file to access options.</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mega Factory Modal -->
+    <div class="modal fade" id="megaFactoryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🏭 Mega Factory - Endgame Base Planner</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="megaFactoryModalContent">
+                    <p>Load a save file to access the Mega Factory planner.</p>
                 </div>
             </div>
         </div>
