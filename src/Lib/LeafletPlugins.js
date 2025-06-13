@@ -1,11 +1,18 @@
 /* global Infinity */
 
-export default class Lib_LeafletPlugins {} // Used for webpack importing...
+export default class Lib_LeafletPlugins {
+    static initialize() {
+        if (typeof window.L === 'undefined') {
+            console.error('Leaflet not loaded');
+            return;
+        }
 
-/**
- * Slider to control altitude shown
- */
-L.Control.SliderControl = L.Control.extend({
+        const L = window.L;
+
+        /**
+         * Slider to control altitude shown
+         */
+        L.Control.SliderControl = L.Control.extend({
     options: {
         position                            : 'topright',
         maxAltitude                         : Infinity,
@@ -110,7 +117,9 @@ L.Control.SliderControl = L.Control.extend({
     }
 });
 
-L.control.sliderControl = function(options)
-{
-    return new L.Control.SliderControl(options);
-};
+        L.control.sliderControl = function(options)
+        {
+            return new L.Control.SliderControl(options);
+        };
+    }
+}

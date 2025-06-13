@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill:*)",
+      "Bash(python3:*)",
+      "Bash(NODE_OPTIONS=--openssl-legacy-provider npm run build)",
+      "Bash(npm run build-dev:*)",
+      "Bash(rg:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": []
+  }
+}

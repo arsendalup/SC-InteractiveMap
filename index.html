@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satisfactory Calculator - Interactive Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #leafletMap { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+    <div id="leafletMap"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        console.log('Loading dependencies...');
+        console.log('Leaflet loaded:', typeof L !== 'undefined');
+        console.log('jQuery loaded:', typeof $ !== 'undefined');
+        
+        // Ensure Leaflet is fully loaded before loading SCIM
+        window.addEventListener('load', function() {
+            console.log('Window loaded');
+            if (typeof L !== 'undefined' && typeof $ !== 'undefined') {
+                console.log('Loading SCIM.js...');
+                const script = document.createElement('script');
+                script.src = 'build/SCIM.js';
+                script.onload = function() {
+                    console.log('SCIM.js loaded');
+                    if (window.SCIM) {
+                        console.log('Starting SCIM...');
+                        window.SCIM.start();
+                    } else {
+                        console.error('SCIM not found on window');
+                    }
+                };
+                script.onerror = function() {
+                    console.error('Failed to load SCIM.js');
+                };
+                document.body.appendChild(script);
+            } else {
+                console.error('Leaflet or jQuery not loaded properly');
+                console.log('L:', typeof L);
+                console.log('$:', typeof $);
+            }
+        });
+    </script>
+</body>
+</html>
